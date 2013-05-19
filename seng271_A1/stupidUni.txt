@@ -1,0 +1,17 @@
+Stupid People University
+math:17
+algebra:35
+philosophy:32
+modern arts:17
+modeling:29
+calculus:20
+stochastic:23
+exam:0
+===
+math:calculus:algebra:modeling
+algebra:philosophy:math
+philosophy:modern arts:algebra
+modern arts:philosophy:modeling
+modeling:modern arts:math:calculus:stochastic:exam
+stochastic:modeling:calculus
+calculus:modeling:stochastic:math
