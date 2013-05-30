@@ -2,8 +2,8 @@ import java.util.ArrayList;
 
 /**
  * Class that models the rooms within the University
- * @author Luuk
- *
+ * @author Luuk Veenis
+ * 
  */
 public class Room {
 	
@@ -17,6 +17,8 @@ public class Room {
 		this.adjacentRooms = new ArrayList<Room>();
 	}
 	
+	/* ====== GET Methods ====== */
+	
 	public String getName(){
 		return this.courseName;
 	}
@@ -26,9 +28,7 @@ public class Room {
 	}
 	
 	/**
-	 * Add a reference to an adjacent room to the list.
-	 * Simultaneously sets the reference in the adjacent room
-	 * to point back at this room.
+	 * Adds a reference to an adjacent room to the list
 	 * @param room
 	 */
 	public void addAdjacentRoom(Room room){
@@ -36,13 +36,18 @@ public class Room {
 	}
 	
 	/**
-	 * Removes the room parameter from the adjacentRooms  list
+	 * Removes the room specified from the adjacentRooms list
 	 * @param room
 	 */
 	public void removeAdjacentRoom(Room room){
 		adjacentRooms.remove(room);
 	}
 	
+	/**
+	 * Checks if the specified room is adjacent to this
+	 * @param room
+	 * @return
+	 */
 	public boolean hasAdjacent(String room){
 		for (Room r: adjacentRooms){
 			if (r.getName().equals(room)){
@@ -50,12 +55,5 @@ public class Room {
 			}
 		}
 		return false;
-	}
-	
-	public void printAdjacents(){
-		for(Room r:adjacentRooms){
-			System.out.print(r.getName() + " ");
-		}
-		System.out.println();
 	}
 }
