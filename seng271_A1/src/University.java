@@ -2,10 +2,15 @@ import java.util.Scanner;
 import java.util.ArrayList;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.lang.StringBuilder;
 /**
+ * Description:
  * Class to model the university
+ * Contains the main or "driver" method
+ * Requires a properly formatted textfile as input to the program (see readme)
  * @author Luuk
- *
+ * 
+ *@TODO Replace the main method with proper JUnit test
  */
 
 public class University {
@@ -13,6 +18,8 @@ public class University {
 	private String name;
 	private ArrayList<Room> roomsInUniversity;
 	
+	/* The default name will be changed to something more descriptive
+	   taken from the text file provided as input to the program */
 	public University(){
 		this.name = "default";
 		this.roomsInUniversity = new ArrayList<Room>();
@@ -59,20 +66,20 @@ public class University {
 	}
 	
 	/**
-	 * Input string: room-to-add:adjacent-room:adjacent-room: ...etc. 
+	 * Input string: room-to-add:study-points
 	 * Processes these lines to add the rooms (vertices) to the University
 	 * @param roomString
 	 */
 	private void processRooms(String roomString){
-		String[] rooms = roomString.split(":");
+		String[] rooms = roomString.split(":"); // separate room name and study point value 
 		Room newRoom = new Room(rooms[0], Integer.parseInt(rooms[1]));
-		addRoom(newRoom);
+		addRoom(newRoom); // add classroom to university
 	}
 	
 	/**
 	 * Input string: base-room:adjacent-room:adjacent-room: ...etc. 
 	 * Processes input string to build room adjacencies (edges) in the University
-	 * @param
+	 * @param dependencies
 	 */
 	private void processDependencies(String dependencies){
 		String[] adjacents = dependencies.split(":");
@@ -88,22 +95,22 @@ public class University {
 	 * @param inFileName
 	 */
 	private void buildUniversity(String inFileName){
-		File inFile = new File(inFileName);
+		File inFile = new File(inFileName); // open file for reading
 		Scanner reader;
 		try {
 			reader = new Scanner(inFile);
-			String name = reader.nextLine().trim();
+			String name = reader.nextLine().trim(); // get uni name and remove newline
 			this.name = name;
-			while(reader.hasNext()){
+			while(reader.hasNext()){ // get classroom names
 				String roomString = reader.nextLine().trim();
-				if(roomString.equals("===")){
+				if(roomString.equals("===")){ // indicated end of classroom names
 					break;
 				}
-				processRooms(roomString);
+				processRooms(roomString); // adds the classrooms to the university
 			}
-			while(reader.hasNext()){
+			while(reader.hasNext()){ // get adjacency information
 				String dependencyString = reader.nextLine().trim();
-				processDependencies(dependencyString);
+				processDependencies(dependencyString); // adds references to adjacent classrooms
 			}
 			reader.close();
 		} catch (FileNotFoundException e){
@@ -111,75 +118,55 @@ public class University {
 		}
 	}
 	
-	private void teachStudent(Student student, int studyPoints/*, Room start*/){
-		//student.switchRoom(start);
-		
-		for (Room room: student.getCurrentRoom().adjacentRooms){
-			/*if (student.getCurrentRoom().hasAdjacent("exam") 
-					&& student.getStudyPoints() == studyPoints){
-				System.out.println("**** FOUND ITTTT ****");
-				student.found = true;
-				return;
-			}*/
-			if(room.getName().equals("exam")){
-				continue;
-			}
-			student.switchRoom(room);
-			System.out.println("current room: " + student.getCurrentRoom().getName() + " study: " + student.getStudyPoints());
-			if (student.getCurrentRoom().hasAdjacent("exam") 
-					&& student.getStudyPoints() == studyPoints){
-				System.out.println("**** FOUND ITTTT ****");
-				student.found = true;
-				return;
-			} else if (student.getMotivationPoints() <= 0){
-				System.out.println("Unmotivated");
-				student.goBackRoom();
-				System.out.println(student.getCurrentRoom().getName());
-				continue;
-				//break;
-			} else {
-				System.out.println("studying");
-				//teachStudent(student, studyPoints, room);
-				teachStudent(student, studyPoints);
-			}
-		}
-		if (student.found)
-			return;
-		student.goBackRoom();
-	}
 	
-	private void teachStudent2(Student student, int studyPoints, Room startRoom){
-		student.switchRoom(startRoom);
-		if (student.getCurrentRoom().hasAdjacent("exam") 
+	/**
+	 * Simulates the student making their way through the University. 
+	 * Uses recursion to test every possible path until a valid one is found.
+	 * The full "valid" path will be contained in the student object's "visitedRooms" stack. 
+	 * Original call is made with required study points and "entrance" room as parameters. 
+	 * @param student
+	 * @param studyPoints
+	 * @param startRoom
+	 */
+	private void teachStudent(Student student, int studyPoints, Room startRoom){
+		student.switchRoom(startRoom); // "enter" the next room and update points
+		if (student.getCurrentRoom().hasAdjacent("exam") // check if done?
 				&& student.getStudyPoints() == studyPoints){
+			student.pushVisitedRoom(findRoom("exam"));
 			student.found = true;
 			return;
 		} else if (student.getMotivationPoints() <= 0){
-			student.goBackRoom();
+			student.goBackRoom(); // if no motivation return to previous rooom
 			return;
 		}
 		
 		for (Room room: student.getCurrentRoom().adjacentRooms){
 			if(room.getName().equals("exam")){
-				continue;
+				continue; // don't need to enter exam room since it has 0 points
 			} else if (student.found){
-				return;
+				return; // if the path has been found, exit recursive calls
 			} else {
-				teachStudent2(student, studyPoints, room);
+				teachStudent(student, studyPoints, room); // recursive call
 			}
 		}
 		if (student.found)
-			return;
-		student.goBackRoom();
+			return; // exit call if path has been found
+		student.goBackRoom(); // if loop completes with no valid path, go to previous room
 	}
 	
+	/**
+	 * Provides a better string description of the University
+	 */
+	@Override
 	public String toString(){
-		String description = "";
-		description += this.name + "\n";
+		StringBuilder description = new StringBuilder("");
+		description.append(this.name);
+		description.append("\n");
 		for (Room r: roomsInUniversity){
-			description += r.getName() + " ";
+			description.append(r.getName());
+			description.append(" ");
 		}
-		return description;
+		return description.toString();
 	}
 	
 	public static void main(String[] args){
@@ -188,8 +175,8 @@ public class University {
 		System.out.println(myUni + "\n");
 		
 		Student me = new Student("Luuk", 214);
-		Room begin = myUni.findRoom("math");
-		myUni.teachStudent2(me, 214, begin);
+		Room begin = myUni.findRoom("math");	// "entrance" to unitversity
+		myUni.teachStudent(me, 214, begin);
 		System.out.println(me.getVisitedRooms());
 	}
 
