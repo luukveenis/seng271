@@ -16,6 +16,7 @@ import java.lang.StringBuilder;
 public class University {
 	
 	private String name;
+	private Room startRoom;
 	private ArrayList<Room> roomsInUniversity;
 	
 	/* The default name will be changed to something more descriptive
@@ -32,6 +33,14 @@ public class University {
 	
 	/* ===============================
 	 * ====== GET / SET Methods ====== */
+	
+	public void setStartRoom(Room room){
+		this.startRoom = room;
+	}
+	
+	public Room getStartRoom(){
+		return this.startRoom;
+	}
 	
 	public String getName(){
 		return this.name;
@@ -108,6 +117,7 @@ public class University {
 				}
 				processRooms(roomString); // adds the classrooms to the university
 			}
+			this.startRoom = this.roomsInUniversity.get(0); //first room added should be entry room
 			while(reader.hasNext()){ // get adjacency information
 				String dependencyString = reader.nextLine().trim();
 				processDependencies(dependencyString); // adds references to adjacent classrooms
@@ -160,8 +170,10 @@ public class University {
 	@Override
 	public String toString(){
 		StringBuilder description = new StringBuilder("");
+		description.append("===============================\n");
 		description.append(this.name);
-		description.append("\n");
+		description.append("\n===============================\n");
+		description.append("Classes: ");
 		for (Room r: roomsInUniversity){
 			description.append(r.getName());
 			description.append(" ");
@@ -170,13 +182,17 @@ public class University {
 	}
 	
 	public static void main(String[] args){
+		if (args.length == 0){
+			System.out.println("Please provide a text file as input!");
+			return;
+		}
 		University myUni = new University();
 		myUni.buildUniversity(args[0]);
 		System.out.println(myUni + "\n");
 		
 		Student me = new Student("Luuk", 214);
-		Room begin = myUni.findRoom("math");	// "entrance" to unitversity
-		myUni.teachStudent(me, 214, begin);
+		myUni.teachStudent(me, 214, myUni.getStartRoom());
+		System.out.println("Successfull path:");
 		System.out.println(me.getVisitedRooms());
 	}
 
